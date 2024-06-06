@@ -218,7 +218,7 @@
               };
 
               // Enviar POST para o endpoint
-              fetch("http://localhost:8000/solicitacao", {
+              fetch("https://backend-automat-1.onrender.com/solicitacao", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -247,7 +247,7 @@
       });
 
       function fetchMateriais() {
-        fetch("http://localhost:8000/materiais")
+        fetch("https://backend-automat-1.onrender.com/materiais")
           .then((response) => response.json())
           .then((data) => {
             materiais = data;
