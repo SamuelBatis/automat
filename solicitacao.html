@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automatização de Solicitações de Materiais</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/feather-icons"></script>
+  </head>
+  <body class="bg-gray-100 font-sans leading-normal tracking-normal">
+    <div class="container mx-auto my-8 p-6 bg-white shadow-lg rounded-lg">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        Automatização de Solicitações de Materiais
+      </h1>
+
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-4">Adicionar Material</h2>
+        <form id="materialForm" class="space-y-4">
+          <div>
+            <label for="codigo" class="block text-sm font-medium text-gray-700"
+              >Código do Produto</label
+            >
+            <select
+              id="codigo"
+              name="codigo"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="">Selecione um código</option>
+            </select>
+          </div>
+          <div>
+            <label
+              for="quantidade"
+              class="block text-sm font-medium text-gray-700"
+              >Quantidade</label
+            >
+            <input
+              type="number"
+              id="quantidade"
+              name="quantidade"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div class="text-right">
+            <button
+              type="submit"
+              class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Adicionar Material
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabela de Materiais -->
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Materiais Listados</h2>
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Código
+              </th>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Descrição
+              </th>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Quantidade
+              </th>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Preço Total
+              </th>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Área
+              </th>
+              <th
+                class="py-2 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700"
+              >
+                Ações
+              </th>
+            </tr>
+          </thead>
+          <tbody id="materialTableBody">
+            <!-- Linhas de materiais serão adicionadas aqui -->
+          </tbody>
+        </table>
+        <div class="text-right mt-4">
+          <button
+            id="enviarSolicitacao"
+            class="px-4 py-2 bg-green-600 text-white rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            Enviar Solicitação
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let editIndex = -1;
+      let materiais = [];
+
+      document
+        .getElementById("materialForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const codigo = document.getElementById("codigo").value;
+          const quantidade = parseFloat(
+            document.getElementById("quantidade").value
+          );
+
+          const material = materiais.find((mat) => mat.codigo_mat === codigo);
+          if (!material) {
+            alert("Material não encontrado!");
+            return;
+          }
+
+          const tableBody = document.getElementById("materialTableBody");
+          let row = Array.from(tableBody.getElementsByTagName("tr")).find(
+            (tr) => tr.querySelector("td").innerText === codigo
+          );
+
+          if (row) {
+            // Atualiza quantidade e preço total
+            const qtdCell = row.cells[2];
+            const precoCell = row.cells[3];
+            const novaQuantidade = parseFloat(qtdCell.innerText) + quantidade;
+            const novoPrecoTotal = novaQuantidade * material.preco_mat;
+
+            qtdCell.innerText = novaQuantidade;
+            precoCell.innerText = novoPrecoTotal.toFixed(2);
+          } else {
+            // Adiciona nova linha
+            const precoTotal = material.preco_mat * quantidade;
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+          <td class="py-2 px-4 border-b border-gray-300">${
+            material.codigo_mat
+          }</td>
+          <td class="py-2 px-4 border-b border-gray-300">${
+            material.descricao_mat
+          }</td>
+          <td class="py-2 px-4 border-b border-gray-300">${quantidade}</td>
+          <td class="py-2 px-4 border-b border-gray-300">${precoTotal.toFixed(
+            2
+          )}</td>
+          <td class="py-2 px-4 border-b border-gray-300">${material.area}</td>
+          <td class="py-2 px-4 border-b border-gray-300">
+            <button class="text-blue-600 hover:text-blue-900 edit-btn"><i data-feather="edit"></i></button>
+            <button class="text-red-600 hover:text-red-900 delete-btn"><i data-feather="trash-2"></i></button>
+          </td>
+        `;
+            tableBody.appendChild(newRow);
+          }
+
+          document.getElementById("materialForm").reset();
+          feather.replace();
+        });
+
+      document
+        .getElementById("materialTableBody")
+        .addEventListener("click", function (event) {
+          if (
+            event.target.closest("button") &&
+            event.target.closest("button").classList.contains("edit-btn")
+          ) {
+            const row = event.target.closest("tr");
+            const cells = row.getElementsByTagName("td");
+
+            document.getElementById("codigo").value = cells[0].innerText;
+            document.getElementById("quantidade").value = cells[2].innerText;
+
+            editIndex = Array.prototype.indexOf.call(
+              row.parentNode.children,
+              row
+            );
+          }
+
+          if (
+            event.target.closest("button") &&
+            event.target.closest("button").classList.contains("delete-btn")
+          ) {
+            const row = event.target.closest("tr");
+            row.parentNode.removeChild(row);
+          }
+        });
+
+      document
+        .getElementById("enviarSolicitacao")
+        .addEventListener("click", function () {
+          const tableBody = document
+            .getElementById("materialTableBody")
+            .getElementsByTagName("tr");
+
+          Array.from(tableBody).forEach((row) => {
+            const codigo = row.cells[0].innerText;
+            const quantidade = parseFloat(row.cells[2].innerText);
+
+            const material = materiais.find((mat) => mat.codigo_mat === codigo);
+            if (material) {
+              const data = {
+                qtd: quantidade,
+                Materiais_idMateriais: material.idMateriais,
+                Usuarios_idUsuarios: 1, // Mockado por enquanto
+              };
+
+              // Enviar POST para o endpoint
+              fetch("http://localhost:8000/solicitacao", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+              })
+                .then((response) => {
+                  if (!response.ok) {
+                    throw new Error("Erro ao enviar solicitação");
+                  }
+                  return response.json();
+                })
+                .then((data) => {
+                  console.log("Solicitação enviada com sucesso:", data);
+                })
+                .catch((error) => {
+                  console.error("Erro ao enviar solicitação:", error);
+                });
+            }
+          });
+        });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        feather.replace();
+        fetchMateriais();
+      });
+
+      function fetchMateriais() {
+        fetch("http://localhost:8000/materiais")
+          .then((response) => response.json())
+          .then((data) => {
+            materiais = data;
+            const select = document.getElementById("codigo");
+            data.forEach((item) => {
+              const option = document.createElement("option");
+              option.value = item.codigo_mat;
+              option.text = item.codigo_mat;
+              select.appendChild(option);
+            });
+          })
+          .catch((error) => console.error("Erro ao buscar materiais:", error));
+      }
+    </script>
+  </body>
+</html>
