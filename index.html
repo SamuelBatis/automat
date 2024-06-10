@@ -27,6 +27,7 @@
               id="username"
               name="username"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              required
             />
           </div>
           <div>
@@ -40,18 +41,56 @@
               id="password"
               name="password"
               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              required
             />
           </div>
           <div class="text-right">
-            <a
-              href="menu.html"
+            <button
+              type="submit"
               class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Login
-            </a>
+            </button>
           </div>
         </form>
       </div>
     </div>
+
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+
+          const loginData = {
+            nome_usuario: username,
+            senha: password,
+          };
+
+          fetch("http://localhost:8000/usuarios/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(loginData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.idUsuarios) {
+                localStorage.setItem("userId", data.idUsuarios);
+                window.location.href = "menu.html";
+              } else {
+                alert("Login falhou. Verifique seu usuário e senha.");
+              }
+            })
+            .catch((error) => {
+              console.error("Erro:", error);
+              alert("Ocorreu um erro ao tentar fazer login.");
+            });
+        });
+    </script>
   </body>
 </html>

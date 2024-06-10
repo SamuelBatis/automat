@@ -109,7 +109,8 @@
     </div>
 
     <script>
-      let editIndex = -1;
+      let userId = localStorage.getItem("userId") || 1;
+      let pedidoId = null;
       let materiais = [];
 
       document
@@ -171,74 +172,77 @@
         });
 
       document
-        .getElementById("materialTableBody")
-        .addEventListener("click", function (event) {
-          if (
-            event.target.closest("button") &&
-            event.target.closest("button").classList.contains("edit-btn")
-          ) {
-            const row = event.target.closest("tr");
-            const cells = row.getElementsByTagName("td");
-
-            document.getElementById("codigo").value = cells[0].innerText;
-            document.getElementById("quantidade").value = cells[2].innerText;
-
-            editIndex = Array.prototype.indexOf.call(
-              row.parentNode.children,
-              row
-            );
-          }
-
-          if (
-            event.target.closest("button") &&
-            event.target.closest("button").classList.contains("delete-btn")
-          ) {
-            const row = event.target.closest("tr");
-            row.parentNode.removeChild(row);
-          }
-        });
-
-      document
         .getElementById("enviarSolicitacao")
         .addEventListener("click", function () {
-          const tableBody = document
-            .getElementById("materialTableBody")
-            .getElementsByTagName("tr");
+          // Criar um pedido
+          fetch("http://localhost:8000/pedido", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              Usuarios_idUsuarios: userId,
+            }),
+          })
+            .then((response) => {
+              console.log(response);
+              if (!response.ok) {
+                throw new Error("Erro ao criar pedido");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              pedidoId = data.idPedido;
 
-          Array.from(tableBody).forEach((row) => {
-            const codigo = row.cells[0].innerText;
-            const quantidade = parseFloat(row.cells[2].innerText);
+              // Enviar solicitações
+              const tableBody = document
+                .getElementById("materialTableBody")
+                .getElementsByTagName("tr");
+              Array.from(tableBody).forEach((row) => {
+                const codigo = row.cells[0].innerText;
+                const quantidade = parseFloat(row.cells[2].innerText);
+                console.log(pedidoId);
 
-            const material = materiais.find((mat) => mat.codigo_mat === codigo);
-            if (material) {
-              const data = {
-                qtd: quantidade,
-                Materiais_idMateriais: material.idMateriais,
-                Usuarios_idUsuarios: 1, // Mockado por enquanto
-              };
+                const material = materiais.find(
+                  (mat) => mat.codigo_mat === codigo
+                );
+                if (material) {
+                  const requestData = {
+                    qtd: quantidade,
+                    Pedido_idPedido: pedidoId,
+                    Materiais_idMateriais: material.idMateriais,
+                  };
+                  console.log(requestData);
+                  // Enviar POST para o endpoint de solicitação
+                  fetch("http://localhost:8000/solicitacao", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestData),
+                  })
+                    .then((response) => {
+                      if (!response.ok) {
+                        throw new Error("Erro ao enviar solicitação");
+                      }
+                      return response.json();
+                    })
+                    .then((data) => {
+                      console.log("Solicitação enviada com sucesso:", data);
+                    })
+                    .catch((error) => {
+                      console.error("Erro ao enviar solicitação:", error);
+                    });
+                }
+              });
 
-              // Enviar POST para o endpoint
-              fetch("https://backend-automat-1.onrender.com/solicitacao", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-              })
-                .then((response) => {
-                  if (!response.ok) {
-                    throw new Error("Erro ao enviar solicitação");
-                  }
-                  return response.json();
-                })
-                .then((data) => {
-                  console.log("Solicitação enviada com sucesso:", data);
-                })
-                .catch((error) => {
-                  console.error("Erro ao enviar solicitação:", error);
-                });
-            }
-          });
+              // Limpar a tela e mostrar um toast
+              limparTela();
+              mostrarToast("Solicitação feita com sucesso!");
+            })
+            .catch((error) => {
+              console.error("Erro ao criar pedido:", error);
+            });
         });
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -247,7 +251,7 @@
       });
 
       function fetchMateriais() {
-        fetch("https://backend-automat-1.onrender.com/materiais")
+        fetch("http://localhost:8000/materiais")
           .then((response) => response.json())
           .then((data) => {
             materiais = data;
@@ -255,11 +259,20 @@
             data.forEach((item) => {
               const option = document.createElement("option");
               option.value = item.codigo_mat;
-              option.text = item.codigo_mat;
+              option.text = item.codigo_mat + " - " + item.descricao_mat;
               select.appendChild(option);
             });
           })
           .catch((error) => console.error("Erro ao buscar materiais:", error));
+      }
+
+      function limparTela() {
+        document.getElementById("materialTableBody").innerHTML = "";
+      }
+
+      function mostrarToast(message) {
+        // Implemente a lógica para mostrar um toast na tela
+        console.log("Toast:", message);
       }
     </script>
   </body>
