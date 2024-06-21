@@ -14,6 +14,7 @@
     <div class="container mx-auto my-8 p-6">
       <!-- Menu -->
       <h1 class="text-3xl font-bold mb-6 text-center">Menu</h1>
+      <div id="userInfo" class="text-center mb-6"></div>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Card para criar uma solicitação -->
         <div class="bg-white border rounded-lg shadow-md">
@@ -69,5 +70,24 @@
         </div>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const userId = sessionStorage.getItem("userId");
+        const userName = sessionStorage.getItem("userName");
+
+        console.log("UserID:", userId); // Verifique se o ID do usuário está presente
+        console.log("UserName:", userName); // Verifique se o nome do usuário está presente
+
+        if (userId && userName) {
+          document.getElementById(
+            "userInfo"
+          ).textContent = `Bem-vindo, ${userName}!`;
+        } else {
+          console.error(
+            "Usuário não está logado ou dados não estão disponíveis."
+          );
+        }
+      });
+    </script>
   </body>
 </html>

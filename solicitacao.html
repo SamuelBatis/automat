@@ -109,7 +109,7 @@
     </div>
 
     <script>
-      let userId = localStorage.getItem("userId") || 1;
+      let userId = parseInt(sessionStorage.getItem("userId")) || 1; // Use sessionStorage
       let pedidoId = null;
       let materiais = [];
 

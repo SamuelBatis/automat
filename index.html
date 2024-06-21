@@ -79,8 +79,12 @@
           })
             .then((response) => response.json())
             .then((data) => {
+              console.log(data); // Verifique a resposta da API
               if (data.idUsuarios) {
-                localStorage.setItem("userId", data.idUsuarios);
+                sessionStorage.setItem("userId", data.idUsuarios);
+                sessionStorage.setItem("userName", data.nome_usuario);
+                console.log(sessionStorage.getItem("userId")); // Verifique se os dados estão sendo armazenados
+                console.log(sessionStorage.getItem("userName")); // Verifique se os dados estão sendo armazenados
                 window.location.href = "menu.html";
               } else {
                 alert("Login falhou. Verifique seu usuário e senha.");
