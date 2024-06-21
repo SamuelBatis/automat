@@ -185,7 +185,7 @@
             }),
           })
             .then((response) => {
-              console.log(response);
+              console.log("Pedido Response:", response); // Adicionado para depuração
               if (!response.ok) {
                 throw new Error("Erro ao criar pedido");
               }
@@ -201,7 +201,7 @@
               Array.from(tableBody).forEach((row) => {
                 const codigo = row.cells[0].innerText;
                 const quantidade = parseFloat(row.cells[2].innerText);
-                console.log(pedidoId);
+                console.log("Pedido ID:", pedidoId); // Adicionado para depuração
 
                 const material = materiais.find(
                   (mat) => mat.codigo_mat === codigo
@@ -211,8 +211,11 @@
                     qtd: quantidade,
                     Pedido_idPedido: pedidoId,
                     Materiais_idMateriais: material.idMateriais,
+                    Pedido_Usuarios_idUsuarios: parseInt(
+                      sessionStorage.getItem("userId")
+                    ),
                   };
-                  console.log(requestData);
+                  console.log("Request Data:", requestData); // Adicionado para depuração
                   // Enviar POST para o endpoint de solicitação
                   fetch("http://localhost:8000/solicitacao", {
                     method: "POST",
@@ -222,6 +225,7 @@
                     body: JSON.stringify(requestData),
                   })
                     .then((response) => {
+                      console.log("Solicitação Response:", response); // Adicionado para depuração
                       if (!response.ok) {
                         throw new Error("Erro ao enviar solicitação");
                       }
