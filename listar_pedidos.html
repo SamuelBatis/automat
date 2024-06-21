@@ -19,7 +19,7 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        fetch("http://localhost:8000/pedido")
+        fetch("https://backend-automat.onrender.com/pedido")
           .then((response) => response.json())
           .then((data) => {
             const pedidosContainer = document.getElementById("pedidos");

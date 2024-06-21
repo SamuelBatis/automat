@@ -206,7 +206,7 @@
       });
 
       function fetchMateriais() {
-        fetch("http://localhost:8000/materiais")
+        fetch("https://backend-automat.onrender.com/materiais")
           .then((response) => response.json())
           .then((data) => {
             const tableBody = document.getElementById("materialTableBody");
@@ -248,9 +248,12 @@
 
         const confirmButton = document.getElementById("confirmDeleteButton");
         confirmButton.onclick = function () {
-          fetch(`http://localhost:8000/materiais/${materialId}`, {
-            method: "DELETE",
-          })
+          fetch(
+            `https://backend-automat.onrender.com/materiais/${materialId}`,
+            {
+              method: "DELETE",
+            }
+          )
             .then((response) => response.json())
             .then((data) => {
               console.log("Material excluído com sucesso:", data);
@@ -284,7 +287,7 @@
             area: document.getElementById("editArea").value,
           };
 
-          fetch(`http://localhost:8000/materiais/${id}`, {
+          fetch(`https://backend-automat.onrender.com/materiais/${id}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
